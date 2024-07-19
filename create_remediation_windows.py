@@ -9,7 +9,7 @@ load_dotenv()
 
 # Constants
 DEPLOYMENT_SLUG = os.getenv('DEPLOYMENT_SLUG')
-STATUSES = ['ignored', 'fixing', 'open', 'reviewing']
+STATUSES = ['ignored', 'fixing', 'reviewing']
 AUTH_TOKEN = os.getenv('AUTH_TOKEN')
 DEFAULT_REMEDIATION_WINDOW_DAYS = 60  # Default for non-high severity
 HIGH_SEVERITY_WINDOW_DAYS = 30
