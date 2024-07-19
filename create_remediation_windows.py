@@ -2,12 +2,10 @@ import requests
 import pandas as pd
 from datetime import datetime, timedelta
 
-# Required 
-DEPLOYMENT_SLUG = ' < YOUR DEPLOYMENT SLUG > '
-AUTH_TOKEN = '< YOUR AUTH TOKEN > '
-
 # Constants
-STATUSES = ['ignored', 'fixing', 'reviewing']
+DEPLOYMENT_SLUG = 'kufta_test'
+STATUSES = ['ignored', 'fixing', 'open', 'reviewing']
+AUTH_TOKEN = 'ffaac0dcd4d8783700344e92ab8a90b1ba37386de0cc84ceebb6111f6c3d5908'
 DEFAULT_REMEDIATION_WINDOW_DAYS = 60  # Default for non-high severity
 HIGH_SEVERITY_WINDOW_DAYS = 30
 CSV_FILE_PATH = 'findings_report.csv'
@@ -23,6 +21,7 @@ def get_findings(status):
 
 def process_findings(findings):
     processed_findings = []
+    today = datetime.utcnow().date()
     for finding in findings:
         finding_date = datetime.strptime(finding['created_at'], '%Y-%m-%dT%H:%M:%S.%fZ')
         if finding['severity'].lower() == 'high':
@@ -30,22 +29,25 @@ def process_findings(findings):
         else:
             remediation_window = DEFAULT_REMEDIATION_WINDOW_DAYS
         expiration_date = finding_date + timedelta(days=remediation_window)
+        expiration_date_str = expiration_date.strftime('%Y-%m-%d')
+        past_due = expiration_date.date() < today
         
         processed_findings.append({
             'repository_name': finding['repository']['name'],
             'state': finding['state'],
             'triage_state': finding['triage_state'],
             'created_at': finding_date.strftime('%Y-%m-%d'),
-            'expiration_date': expiration_date.strftime('%Y-%m-%d'),
+            'expiration_date': expiration_date_str,
             'severity': finding['severity'],
             'remediation_window': remediation_window,
+            'past_due': past_due,
             'rule_name': finding['rule_name'],
         })
     return processed_findings
 
 def generate_csv(findings):
     df = pd.DataFrame(findings)
-    df = df[['repository_name', 'state', 'triage_state', 'created_at', 'expiration_date', 'severity', 'remediation_window', 'rule_name']]
+    df = df[['repository_name', 'state', 'triage_state', 'created_at', 'expiration_date', 'severity', 'remediation_window', 'past_due', 'rule_name']]
     df.to_csv(CSV_FILE_PATH, index=False)
 
 def main():
