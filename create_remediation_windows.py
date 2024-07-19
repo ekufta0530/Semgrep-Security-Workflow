@@ -1,11 +1,16 @@
+import os
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Constants
-DEPLOYMENT_SLUG = 'kufta_test'
+DEPLOYMENT_SLUG = os.getenv('DEPLOYMENT_SLUG')
 STATUSES = ['ignored', 'fixing', 'open', 'reviewing']
-AUTH_TOKEN = 'ffaac0dcd4d8783700344e92ab8a90b1ba37386de0cc84ceebb6111f6c3d5908'
+AUTH_TOKEN = os.getenv('AUTH_TOKEN')
 DEFAULT_REMEDIATION_WINDOW_DAYS = 60  # Default for non-high severity
 HIGH_SEVERITY_WINDOW_DAYS = 30
 CSV_FILE_PATH = 'findings_report.csv'
